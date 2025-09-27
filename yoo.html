@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اضافه کردن قولنامه جدید</title>
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome برای آیکون‌ها -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Vazir', -apple-system, BlinkMacSystemFont, sans-serif;
+            position: relative;
+            background: url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7') no-repeat center/cover;
+            min-height: 100vh; /* برای اطمینان از پوشش کامل صفحه */
+        }
+        video#bgVideo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            filter: brightness(0.4) contrast(1.2);
+        }
+        .form-container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 123, 255, 0.5);
+            animation: neonGlow 2s infinite alternate;
+            position: relative;
+            z-index: 1;
+            border: 2px solid #00d4ff;
+        }
+        @keyframes neonGlow {
+            from { box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); }
+            to { box-shadow: 0 0 20px rgba(0, 123, 255, 1); }
+        }
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+        .input-group:hover {
+            transform: translateX(-5px);
+        }
+        .form-control, select.form-control, textarea.form-control {
+            border-radius: 12px;
+            padding: 12px 40px 12px 12px;
+            border: 2px solid #00d4ff;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .form-control:focus, select.form-control:focus, textarea.form-control:focus {
+            border-color: #00ffcc;
+            box-shadow: 0 0 12px rgba(0, 255, 204, 0.5);
+        }
+        .form-control.is-invalid, select.form-control.is-invalid, textarea.form-control.is-invalid {
+            border-color: #dc3545;
+            animation: shake 0.3s;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .btn-custom {
+            background: linear-gradient(45deg, #007bff, #00d4ff);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 30px;
+            font-weight: bold;
+            transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+        }
+        .btn-custom:hover {
+            background: linear-gradient(45deg, #0056b3, #00aaff);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(0, 123, 255, 0.7);
+        }
+        .btn-custom:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .input-icon {
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+            color: #00d4ff;
+        }
+        .calculation-box {
+            background: rgba(0, 123, 255, 0.2);
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+            color: #00d4ff;
+            font-weight: 600;
+            animation: pulse 1.5s infinite alternate;
+        }
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.03); }
+        }
+        .preview-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px dashed #00d4ff;
+            border-radius: 12px;
+            color: white;
+            display: none;
+            position: relative;
+        }
+        .preview-box h3 {
+            color: #00ffcc;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .preview-box p {
+            margin: 10px 0;
+            font-size: 1.1rem;
+        }
+        .preview-box .signature {
+            border-top: 1px solid white;
+            margin-top: 30px;
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+        .preview-box .signature div {
+            text-align: center;
+            width: 25%;
+        }
+        .section-title {
+            color: #00ffcc;
+            font-weight: bold;
+            margin-bottom: 10px;
+            margin-top: 20px;
+            border-bottom: 1px solid #00d4ff;
+            padding-bottom: 5px;
+        }
+        .row {
+            margin: 0 -10px;
+        }
+        .col-md-6 {
+            padding: 0 10px;
+        }
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00d4ff;
+            font-size: 1.5rem;
+            animation: pulse 1.5s infinite;
+        }
+        .btn-print {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 30px;
+            font-weight: bold;
+            transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+        }
+        .btn-print:hover {
+            background: linear-gradient(45deg, #1e7e34, #17a589);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(40, 167, 69, 0.7);
+        }
+        @media (max-width: 768px) {
+            .form-container {
+                margin: 20px;
+                padding: 20px;
+            }
+            .col-md-6 {
+                padding: 0 5px;
+            }
+            .preview-box {
+                margin-bottom: 20px; /* برای اطمینان از فضای کافی در موبایل */
+            }
+        }
+        @media print {
+            .no-print { display: none !important; }
+            .preview-box { 
+                display: block !important; 
+                border: none; 
+                background: white;
+                color: black;
+                padding: 20px;
+                position: static;
+                width: 100%;
+                margin: 0;
+            }
+            .preview-box h3 { 
+                color: black; 
+                font-size: 1.5rem;
+                margin-bottom: 30px;
+            }
+            .preview-box p { 
+                color: black;
+                font-size: 1rem;
+            }
+            .preview-box .signature { 
+                border-top: 1px solid black; 
+                color: black; 
+                margin-top: 40px;
+            }
+            .section-title {
+                color: black;
+                border-bottom: 1px solid black;
+            }
+            body, video { display: none; }
+            .form-container { 
+                background: white; 
+                border: none; 
+                box-shadow: none; 
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <video id="bgVideo" autoplay muted loop>
+        <source src="https://assets.mixkit.co/videos/preview/mixkit-car-driving-on-a-highway-at-night-4108-large.mp4" type="video/mp4">
+    </video>
+    <div class="form-container">
+        <h2 class="text-center mb-4 text-white"><i class="fas fa-file-contract me-2"></i>اضافه کردن قولنامه جدید</h2>
+        <form id="contractForm" class="no-print">
+            <!-- بخش اطلاعات خریدار -->
+            <div class="section-title">اطلاعات خریدار</div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="buyer_first_name" class="text-white"><i class="fas fa-user me-2"></i>نام خریدار</label>
+                        <div class="position-relative">
+                            <input type="text" class="form-control" id="buyer_first_name" placeholder="نام" required value="عرفان">
+                            <i class="fas fa-user input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="buyer_first_name_error">نام خریدار نمی‌تواند خالی باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="buyer_last_name" class="text-white"><i class="fas fa-user me-2"></i>نام خانوادگی خریدار</label>
+                        <div class="position-relative">
+                            <input type="text" class="form-control" id="buyer_last_name" placeholder="نام خانوادگی" required value="یونسی">
+                            <i class="fas fa-user input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="buyer_last_name_error">نام خانوادگی خریدار نمی‌تواند خالی باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="buyer_national_id" class="text-white"><i class="fas fa-id-card me-2"></i>کد ملی خریدار</label>
+                        <div class="position-relative">
+                            <input type="text" class="form-control" id="buyer_national_id" placeholder="کد ملی (10 رقم)" required maxLength="10">
+                            <i class="fas fa-id-card input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="buyer_national_id_error">کد ملی باید 10 رقم باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="buyer_phone" class="text-white"><i class="fas fa-phone me-2"></i>شماره تماس خریدار</label>
+                        <div class="position-relative">
+                            <input type="tel" class="form-control" id="buyer_phone" placeholder="مثال: 09123456789" required pattern="09[0-9]{9}">
+                            <i class="fas fa-phone input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="buyer_phone_error">شماره تماس باید معتبر باشد (09xxxxxxxxx)</div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="input-group">
+                        <label for="buyer_address" class="text-white"><i class="fas fa-home me-2"></i>آدرس خریدار</label>
+                        <div class="position-relative">
+                            <textarea class="form-control" id="buyer_address" placeholder="آدرس کامل" required></textarea>
+                            <i class="fas fa-home input-icon" style="top: 20px;"></i>
+                        </div>
+                        <div class="error-message text-danger" id="buyer_address_error">آدرس نمی‌تواند خالی باشد</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- بخش اطلاعات فروشنده -->
+            <div class="section-title">اطلاعات فروشنده</div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="seller_first_name" class="text-white"><i class="fas fa-user-tie me-2"></i>نام فروشنده</label>
+                        <div class="position-relative">
+                            <input type="text" class="form-control" id="seller_first_name" placeholder="نام" required value="امیر">
+                            <i class="fas fa-user-tie input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="seller_first_name_error">نام فروشنده نمی‌تواند خالی باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="seller_last_name" class="text-white"><i class="fas fa-user-tie me-2"></i>نام خانوادگی فروشنده</label>
+                        <div class="position-relative">
+                            <input type="text" class="form-control" id="seller_last_name" placeholder="نام خانوادگی" required value="نصیری">
+                            <i class="fas fa-user-tie input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="seller_last_name_error">نام خانوادگی فروشنده نمی‌تواند خالی باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="seller_national_id" class="text-white"><i class="fas fa-id-card me-2"></i>کد ملی فروشنده</label>
+                        <div class="position-relative">
+                            <input type="text" class="form-control" id="seller_national_id" placeholder="کد ملی (10 رقم)" required maxLength="10">
+                            <i class="fas fa-id-card input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="seller_national_id_error">کد ملی باید 10 رقم باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="seller_phone" class="text-white"><i class="fas fa-phone me-2"></i>شماره تماس فروشنده</label>
+                        <div class="position-relative">
+                            <input type="tel" class="form-control" id="seller_phone" placeholder="مثال: 09123456789" required pattern="09[0-9]{9}">
+                            <i class="fas fa-phone input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="seller_phone_error">شماره تماس باید معتبر باشد (09xxxxxxxxx)</div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="input-group">
+                        <label for="seller_address" class="text-white"><i class="fas fa-home me-2"></i>آدرس فروشنده</label>
+                        <div class="position-relative">
+                            <textarea class="form-control" id="seller_address" placeholder="آدرس کامل" required></textarea>
+                            <i class="fas fa-home input-icon" style="top: 20px;"></i>
+                        </div>
+                        <div class="error-message text-danger" id="seller_address_error">آدرس نمی‌تواند خالی باشد</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- بخش اطلاعات ماشین -->
+            <div class="section-title">اطلاعات ماشین</div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="car_model" class="text-white"><i class="fas fa-car me-2"></i>مدل ماشین</label>
+                        <div class="position-relative">
+                            <input type="text" class="form-control" id="car_model" placeholder="مثال: پراید 131" required value="پراید 131">
+                            <i class="fas fa-car input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="car_model_error">مدل ماشین نمی‌تواند خالی باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="car_year" class="text-white"><i class="fas fa-calendar-alt me-2"></i>سال ساخت</label>
+                        <div class="position-relative">
+                            <input type="number" class="form-control" id="car_year" placeholder="مثال: 1399" required min="1300" max="1404">
+                            <i class="fas fa-calendar-alt input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="car_year_error">سال ساخت باید معتبر باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="car_color" class="text-white"><i class="fas fa-palette me-2"></i>رنگ ماشین</label>
+                        <div class="position-relative">
+                            <input type="text" class="form-control" id="car_color" placeholder="مثال: سفید" required>
+                            <i class="fas fa-palette input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="car_color_error">رنگ ماشین نمی‌تواند خالی باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="car_chassis" class="text-white"><i class="fas fa-barcode me-2"></i>شماره شاسی</label>
+                        <div class="position-relative">
+                            <input type="text" class="form-control" id="car_chassis" placeholder="شماره شاسی" required>
+                            <i class="fas fa-barcode input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="car_chassis_error">شماره شاسی نمی‌تواند خالی باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="car_engine" class="text-white"><i class="fas fa-cogs me-2"></i>شماره موتور</label>
+                        <div class="position-relative">
+                            <input type="text" class="form-control" id="car_engine" placeholder="شماره موتور" required>
+                            <i class="fas fa-cogs input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="car_engine_error">شماره موتور نمی‌تواند خالی باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="car_plate" class="text-white"><i class="fas fa-tag me-2"></i>شماره پلاک</label>
+                        <div class="position-relative">
+                            <input type="text" class="form-control" id="car_plate" placeholder="شماره پلاک" required>
+                            <i class="fas fa-tag input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="car_plate_error">شماره پلاک نمی‌تواند خالی باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="car_mileage" class="text-white"><i class="fas fa-road me-2"></i>کیلومتر کارکرد</label>
+                        <div class="position-relative">
+                            <input type="number" class="form-control" id="car_mileage" placeholder="مثال: 50000" required min="0">
+                            <i class="fas fa-road input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="car_mileage_error">کیلومتر کارکرد باید معتبر باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="car_condition" class="text-white"><i class="fas fa-check-circle me-2"></i>وضعیت فنی</label>
+                        <div class="position-relative">
+                            <select class="form-control" id="car_condition" required>
+                                <option value="">انتخاب کنید</option>
+                                <option value="سالم">سالم</option>
+                                <option value="تصادفی">تصادفی</option>
+                                <option value="تعمیر شده">تعمیر شده</option>
+                            </select>
+                            <i class="fas fa-check-circle input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="car_condition_error">وضعیت فنی نمی‌تواند خالی باشد</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- بخش جزئیات معامله -->
+            <div class="section-title">جزئیات معامله</div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="sale_price" class="text-white"><i class="fas fa-dollar-sign me-2"></i>قیمت فروش (تومان)</label>
+                        <div class="position-relative">
+                            <input type="number" class="form-control" id="sale_price" placeholder="مثال: 500000000" step="1000" required value="20000000">
+                            <i class="fas fa-dollar-sign input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="sale_price_error">قیمت فروش باید معتبر باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="purchase_price" class="text-white"><i class="fas fa-shopping-cart me-2"></i>قیمت خرید (تومان)</label>
+                        <div class="position-relative">
+                            <input type="number" class="form-control" id="purchase_price" placeholder="مثال: 450000000" step="1000" required value="2011111">
+                            <i class="fas fa-shopping-cart input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="purchase_price_error">قیمت خرید باید معتبر باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="commission_percent" class="text-white"><i class="fas fa-percentage me-2"></i>درصد کمیسیون</label>
+                        <div class="position-relative">
+                            <input type="number" class="form-control" id="commission_percent" placeholder="پیش‌فرض: 2" step="0.01" value="2" required>
+                            <i class="fas fa-percentage input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="commission_percent_error">درصد کمیسیون باید معتبر باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="payment_method" class="text-white"><i class="fas fa-credit-card me-2"></i>نحوه پرداخت</label>
+                        <div class="position-relative">
+                            <select class="form-control" id="payment_method" required>
+                                <option value="">انتخاب کنید</option>
+                                <option value="نقدی">نقدی</option>
+                                <option value="اقساطی">اقساطی</option>
+                                <option value="چک">چک</option>
+                                <option value="نقدی و اقساطی">نقدی و اقساطی</option>
+                            </select>
+                            <i class="fas fa-credit-card input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="payment_method_error">نحوه پرداخت نمی‌تواند خالی باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="delivery_date" class="text-white"><i class="fas fa-calendar-check me-2"></i>تاریخ تحویل</label>
+                        <div class="position-relative">
+                            <input type="date" class="form-control" id="delivery_date" required>
+                            <i class="fas fa-calendar-check input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="delivery_date_error">تاریخ تحویل نمی‌تواند خالی باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="input-group">
+                        <label for="additional_terms" class="text-white"><i class="fas fa-file-alt me-2"></i>شرایط اضافی / فسخ</label>
+                        <div class="position-relative">
+                            <textarea class="form-control" id="additional_terms" placeholder="شرایط اضافی قرارداد (اختیاری)"></textarea>
+                            <i class="fas fa-file-alt input-icon" style="top: 20px;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="calculation-box no-print">
+                <p>کمیسیون: <span id="commission_display">400000</span> تومان</p>
+                <p>سود: <span id="profit_display">17588889</span> تومان</p>
+            </div>
+            <div class="d-flex justify-content-center no-print">
+                <button type="submit" class="btn btn-custom me-2"><i class="fas fa-save me-2"></i>ذخیره قولنامه</button>
+                <button type="button" class="btn btn-secondary me-2" onclick="showPreview()"><i class="fas fa-eye me-2"></i>پیش‌نمایش قرارداد</button>
+                <a href="dashboard.html" class="btn btn-secondary"><i class="fas fa-tachometer-alt me-2"></i>بازگشت به داشبورد</a>
+            </div>
+        </form>
+        <div class="preview-box" id="previewBox">
+            <h3 class="text-center">قولنامه خودرو</h3>
+            <div class="section-title">اطلاعات خریدار</div>
+            <p><strong>نام و نام خانوادگی خریدار:</strong> <span id="preview_buyer_name"></span></p>
+            <p><strong>کد ملی خریدار:</strong> <span id="preview_buyer_national_id"></span></p>
+            <p><strong>شماره تماس خریدار:</strong> <span id="preview_buyer_phone"></span></p>
+            <p><strong>آدرس خریدار:</strong> <span id="preview_buyer_address"></span></p>
+            <div class="section-title">اطلاعات فروشنده</div>
+            <p><strong>نام و نام خانوادگی فروشنده:</strong> <span id="preview_seller_name"></span></p>
+            <p><strong>کد ملی فروشنده:</strong> <span id="preview_seller_national_id"></span></p>
+            <p><strong>شماره تماس فروشنده:</strong> <span id="preview_seller_phone"></span></p>
+            <p><strong>آدرس فروشنده:</strong> <span id="preview_seller_address"></span></p>
+            <div class="section-title">اطلاعات ماشین</div>
+            <p><strong>مدل ماشین:</strong> <span id="preview_car_model"></span></p>
+            <p><strong>سال ساخت:</strong> <span id="preview_car_year"></span></p>
+            <p><strong>رنگ:</strong> <span id="preview_car_color"></span></p>
+            <p><strong>شماره شاسی:</strong> <span id="preview_car_chassis"></span></p>
+            <p><strong>شماره موتور:</strong> <span id="preview_car_engine"></span></p>
+            <p><strong>شماره پلاک:</strong> <span id="preview_car_plate"></span></p>
+            <p><strong>کیلومتر کارکرد:</strong> <span id="preview_car_mileage"></span></p>
+            <p><strong>وضعیت فنی:</strong> <span id="preview_car_condition"></span></p>
+            <div class="section-title">جزئیات معامله</div>
+            <p><strong>قیمت فروش:</strong> <span id="preview_sale_price"></span> تومان</p>
+            <p><strong>قیمت خرید:</strong> <span id="preview_purchase_price"></span> تومان</p>
+            <p><strong>کمیسیون:</strong> <span id="preview_commission"></span> تومان</p>
+            <p><strong>سود:</strong> <span id="preview_profit"></span> تومان</p>
+            <p><strong>نحوه پرداخت:</strong> <span id="preview_payment_method"></span></p>
+            <p><strong>تاریخ تحویل:</strong> <span id="preview_delivery_date"></span></p>
+            <p><strong>شرایط اضافی / فسخ:</strong> <span id="preview_additional_terms"></span></p>
+            <p class="text-muted">تاریخ قرارداد: <span id="preview_date"></span></p>
+            <div class="signature">
+                <div>امضای خریدار</div>
+                <div>امضای فروشنده</div>
+                <div>امضای شاهد</div>
+                <div>امضای نمایشگاه</div>
+            </div>
+            <div class="d-flex justify-content-center mt-4 no-print">
+                <button type="button" class="btn btn-print" onclick="window.print()"><i class="fas fa-print me-2"></i>پرینت قرارداد</button>
+            </div>
+        </div>
+    </div>
+    <div class="loading-overlay" id="loadingOverlay">
+        <i class="fas fa-spinner fa-spin me-2"></i>در حال پردازش...
+    </div>
+    <script>
+        // غیرفعال کردن لودینگ اولیه
+        document.getElementById('loadingOverlay').style.display = 'none';
+
+        const form = document.getElementById('contractForm');
+        const inputs = [
+            'buyer_first_name', 'buyer_last_name', 'buyer_national_id', 'buyer_phone', 'buyer_address',
+            'seller_first_name', 'seller_last_name', 'seller_national_id', 'seller_phone', 'seller_address',
+            'car_model', 'car_year', 'car_color', 'car_chassis', 'car_engine', 'car_plate', 'car_mileage', 'car_condition',
+            'sale_price', 'purchase_price', 'commission_percent', 'payment_method', 'delivery_date'
+        ]; // 'additional_terms' اختیاریه
+        const previewBox = document.getElementById('previewBox');
+
+        // افکت صوتی
+        const playSound = () => {
+            const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-car-engine-start-1.mp3');
+            audio.play().catch(() => {});
+        };
+
+        // محاسبه زنده کمیسیون و سود
+        function calculate() {
+            const price = parseFloat(document.getElementById('sale_price').value) || 0;
+            const purchasePrice = parseFloat(document.getElementById('purchase_price').value) || 0;
+            const commissionPercent = parseFloat(document.getElementById('commission_percent').value) || 2;
+            const commission = (price * commissionPercent / 100).toFixed(0);
+            const profit = (price - purchasePrice - commission).toFixed(0);
+            document.getElementById('commission_display').textContent = commission.toLocaleString('fa-IR');
+            document.getElementById('profit_display').textContent = profit.toLocaleString('fa-IR');
+            return { commission, profit };
+        }
+
+        // Validate کردن فرم
+        function validateForm() {
+            let isValid = true;
+            inputs.forEach(id => {
+                const input = document.getElementById(id);
+                const errorElement = document.getElementById(`${id}_error`);
+                let message = `${input.previousElementSibling.textContent} نمی‌تواند خالی باشد`;
+                if (id === 'buyer_national_id' || id === 'seller_national_id') {
+                    if (input.value.length !== 10 || isNaN(input.value)) {
+                        message = 'کد ملی باید 10 رقم باشد';
+                        isValid = false;
+                    }
+                } else if (id.includes('phone') && !input.value.match(/^09[0-9]{9}$/)) {
+                    message = 'شماره تماس باید معتبر باشد (09xxxxxxxxx)';
+                    isValid = false;
+                } else if (id.includes('price') && (input.value <= 0 || !input.value)) {
+                    message = 'قیمت باید معتبر باشد';
+                    isValid = false;
+                } else if (id === 'car_year' && (input.value < 1300 || input.value > new Date().getFullYear())) {
+                    message = 'سال ساخت باید معتبر باشد';
+                    isValid = false;
+                } else if (id === 'car_mileage' && input.value < 0) {
+                    message = 'کیلومتر کارکرد باید مثبت باشد';
+                    isValid = false;
+                } else if (!input.value) {
+                    isValid = false;
+                }
+                if (!isValid && errorElement) {
+                    input.classList.add('is-invalid');
+                    errorElement.style.display = 'block';
+                    errorElement.textContent = message;
+                } else if (errorElement) {
+                    input.classList.remove('is-invalid');
+                    errorElement.style.display = 'none';
+                }
+            });
+            return isValid;
+        }
+
+        // ذخیره در localStorage و نمایش پیش‌نمایش
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (!validateForm()) return;
+
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            playSound();
+
+            setTimeout(() => {
+                const data = {
+                    id: Date.now(),
+                    buyer_first_name: document.getElementById('buyer_first_name').value,
+                    buyer_last_name: document.getElementById('buyer_last_name').value,
+                    buyer_national_id: document.getElementById('buyer_national_id').value,
+                    buyer_phone: document.getElementById('buyer_phone').value,
+                    buyer_address: document.getElementById('buyer_address').value,
+                    seller_first_name: document.getElementById('seller_first_name').value,
+                    seller_last_name: document.getElementById('seller_last_name').value,
+                    seller_national_id: document.getElementById('seller_national_id').value,
+                    seller_phone: document.getElementById('seller_phone').value,
+                    seller_address: document.getElementById('seller_address').value,
+                    car_model: document.getElementById('car_model').value,
+                    car_year: document.getElementById('car_year').value,
+                    car_color: document.getElementById('car_color').value,
+                    car_chassis: document.getElementById('car_chassis').value,
+                    car_engine: document.getElementById('car_engine').value,
+                    car_plate: document.getElementById('car_plate').value,
+                    car_mileage: document.getElementById('car_mileage').value,
+                    car_condition: document.getElementById('car_condition').value,
+                    sale_price: parseFloat(document.getElementById('sale_price').value),
+                    purchase_price: parseFloat(document.getElementById('purchase_price').value),
+                    commission_percent: parseFloat(document.getElementById('commission_percent').value) || 2,
+                    commission: calculate().commission,
+                    profit: calculate().profit,
+                    payment_method: document.getElementById('payment_method').value,
+                    delivery_date: document.getElementById('delivery_date').value,
+                    additional_terms: document.getElementById('additional_terms').value,
+                    date: new Date().toLocaleDateString('fa-IR')
+                };
+                const contracts = JSON.parse(localStorage.getItem('contracts') || '[]');
+                contracts.push(data);
+                localStorage.setItem('contracts', JSON.stringify(contracts));
+                alert('قولنامه ذخیره شد! برای اتصال به سرور، بک‌اند اضافه کنید.');
+                form.reset();
+                calculate();
+                previewBox.style.display = 'none';
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }, 1500);
+        });
+
+        // پیش‌نمایش قرارداد
+        function showPreview() {
+            if (!validateForm()) return;
+            const { commission, profit } = calculate();
+            document.getElementById('preview_buyer_name').textContent = `${document.getElementById('buyer_first_name').value} ${document.getElementById('buyer_last_name').value}`;
+            document.getElementById('preview_buyer_national_id').textContent = document.getElementById('buyer_national_id').value;
+            document.getElementById('preview_buyer_phone').textContent = document.getElementById('buyer_phone').value;
+            document.getElementById('preview_buyer_address').textContent = document.getElementById('buyer_address').value;
+            document.getElementById('preview_seller_name').textContent = `${document.getElementById('seller_first_name').value} ${document.getElementById('seller_last_name').value}`;
+            document.getElementById('preview_seller_national_id').textContent = document.getElementById('seller_national_id').value;
+            document.getElementById('preview_seller_phone').textContent = document.getElementById('seller_phone').value;
+            document.getElementById('preview_seller_address').textContent = document.getElementById('seller_address').value;
+            document.getElementById('preview_car_model').textContent = document.getElementById('car_model').value;
+            document.getElementById('preview_car_year').textContent = document.getElementById('car_year').value;
+            document.getElementById('preview_car_color').textContent = document.getElementById('car_color').value;
+            document.getElementById('preview_car_chassis').textContent = document.getElementById('car_chassis').value;
+            document.getElementById('preview_car_engine').textContent = document.getElementById('car_engine').value;
+            document.getElementById('preview_car_plate').textContent = document.getElementById('car_plate').value;
+            document.getElementById('preview_car_mileage').textContent = parseFloat(document.getElementById('car_mileage').value).toLocaleString('fa-IR');
+            document.getElementById('preview_car_condition').textContent = document.getElementById('car_condition').value;
+            document.getElementById('preview_sale_price').textContent = parseFloat(document.getElementById('sale_price').value).toLocaleString('fa-IR');
+            document.getElementById('preview_purchase_price').textContent = parseFloat(document.getElementById('purchase_price').value).toLocaleString('fa-IR');
+            document.getElementById('preview_commission').textContent = commission.toLocaleString('fa-IR');
+            document.getElementById('preview_profit').textContent = profit.toLocaleString('fa-IR');
+            document.getElementById('preview_payment_method').textContent = document.getElementById('payment_method').value;
+            document.getElementById('preview_delivery_date').textContent = document.getElementById('delivery_date').value;
+            document.getElementById('preview_additional_terms').textContent = document.getElementById('additional_terms').value || 'بدون شرایط اضافی';
+            document.getElementById('preview_date').textContent = new Date().toLocaleDateString('fa-IR');
+            previewBox.style.display = 'block';
+            previewBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // محاسبه زنده موقع تایپ
+        ['sale_price', 'purchase_price', 'commission_percent'].forEach(id => {
+            document.getElementById(id).addEventListener('input', calculate);
+        });
+
+        // محاسبه اولیه
+        calculate();
+    </script>
+</body>
+</html>

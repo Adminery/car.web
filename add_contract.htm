@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اضافه کردن قولنامه جدید</title>
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome برای آیکون‌ها -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            overflow: hidden;
+            font-family: 'Vazir', -apple-system, BlinkMacSystemFont, sans-serif;
+            position: relative;
+            background: url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7') no-repeat center/cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        video#bgVideo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            filter: brightness(0.4) contrast(1.2);
+        }
+        .form-container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 123, 255, 0.5);
+            animation: neonGlow 2s infinite alternate;
+            position: relative;
+            z-index: 1;
+            border: 2px solid #00d4ff;
+        }
+        @keyframes neonGlow {
+            from { box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); }
+            to { box-shadow: 0 0 20px rgba(0, 123, 255, 1); }
+        }
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+        .input-group:hover {
+            transform: translateX(-5px);
+        }
+        .form-control {
+            border-radius: 12px;
+            padding: 12px 40px 12px 12px;
+            border: 2px solid #00d4ff;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .form-control:focus {
+            border-color: #00ffcc;
+            box-shadow: 0 0 12px rgba(0, 255, 204, 0.5);
+        }
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            animation: shake 0.3s;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .btn-custom {
+            background: linear-gradient(45deg, #007bff, #00d4ff);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 30px;
+            font-weight: bold;
+            transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+        }
+        .btn-custom:hover {
+            background: linear-gradient(45deg, #0056b3, #00aaff);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(0, 123, 255, 0.7);
+        }
+        .btn-custom:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .input-icon {
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+            color: #00d4ff;
+        }
+        .calculation-box {
+            background: rgba(0, 123, 255, 0.2);
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+            color: #00d4ff;
+            font-weight: 600;
+            animation: pulse 1.5s infinite alternate;
+        }
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.03); }
+        }
+        .preview-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px dashed #00d4ff;
+            border-radius: 12px;
+            color: white;
+            display: none;
+        }
+        .preview-box h3 {
+            color: #00ffcc;
+        }
+        .preview-box p {
+            margin: 10px 0;
+        }
+        .row {
+            margin: 0 -10px;
+        }
+        .col-md-6 {
+            padding: 0 10px;
+        }
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00d4ff;
+            font-size: 1.5rem;
+            animation: pulse 1.5s infinite;
+        }
+        @media (max-width: 768px) {
+            .form-container {
+                margin: 20px;
+                padding: 20px;
+            }
+            .col-md-6 {
+                padding: 0 5px;
+            }
+        }
+        @media print {
+            .no-print { display: none !important; }
+            .preview-box { 
+                display: block !important; 
+                border: none; 
+                background: white;
+                color: black;
+                padding: 20px;
+            }
+            .preview-box h3 { color: black; }
+            body, video { display: none; }
+            .form-container { background: white; border: none; box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+    <video id="bgVideo" autoplay muted loop>
+        <source src="https://assets.mixkit.co/videos/preview/mixkit-car-driving-on-a-highway-at-night-4108-large.mp4" type="video/mp4">
+    </video>
+    <div class="form-container">
+        <h2 class="text-center mb-4 text-white"><i class="fas fa-file-contract me-2"></i>اضافه کردن قولنامه جدید</h2>
+        <form id="contractForm" class="no-print">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="buyer_name" class="text-white"><i class="fas fa-user me-2"></i>نام خریدار</label>
+                        <div class="position-relative">
+                            <input type="text" class="form-control" id="buyer_name" placeholder="نام کامل خریدار" required>
+                            <i class="fas fa-user input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="buyer_name_error">نام خریدار نمی‌تواند خالی باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="seller_name" class="text-white"><i class="fas fa-user-tie me-2"></i>نام فروشنده</label>
+                        <div class="position-relative">
+                            <input type="text" class="form-control" id="seller_name" placeholder="نام کامل فروشنده" required>
+                            <i class="fas fa-user-tie input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="seller_name_error">نام فروشنده نمی‌تواند خالی باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="car_model" class="text-white"><i class="fas fa-car me-2"></i>مدل ماشین</label>
+                        <div class="position-relative">
+                            <input type="text" class="form-control" id="car_model" placeholder="مثال: پراید 131" required>
+                            <i class="fas fa-car input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="car_model_error">مدل ماشین نمی‌تواند خالی باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="price" class="text-white"><i class="fas fa-dollar-sign me-2"></i>قیمت فروش (تومان)</label>
+                        <div class="position-relative">
+                            <input type="number" class="form-control" id="price" placeholder="مثال: 500000000" step="1000" required>
+                            <i class="fas fa-dollar-sign input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="price_error">قیمت فروش باید معتبر باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="purchase_price" class="text-white"><i class="fas fa-shopping-cart me-2"></i>قیمت خرید (تومان)</label>
+                        <div class="position-relative">
+                            <input type="number" class="form-control" id="purchase_price" placeholder="مثال: 450000000" step="1000" required>
+                            <i class="fas fa-shopping-cart input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="purchase_price_error">قیمت خرید باید معتبر باشد</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <label for="commission_percent" class="text-white"><i class="fas fa-percentage me-2"></i>درصد کمیسیون</label>
+                        <div class="position-relative">
+                            <input type="number" class="form-control" id="commission_percent" placeholder="پیش‌فرض: 2" step="0.01" value="2">
+                            <i class="fas fa-percentage input-icon"></i>
+                        </div>
+                        <div class="error-message text-danger" id="commission_percent_error">درصد کمیسیون باید معتبر باشد</div>
+                    </div>
+                </div>
+            </div>
+            <div class="calculation-box no-print">
+                <p>کمیسیون: <span id="commission_display">0</span> تومان</p>
+                <p>سود: <span id="profit_display">0</span> تومان</p>
+            </div>
+            <div class="d-flex justify-content-center no-print">
+                <button type="submit" class="btn btn-custom me-2"><i class="fas fa-save me-2"></i>ذخیره قولنامه</button>
+                <button type="button" class="btn btn-secondary" onclick="showPreview()"><i class="fas fa-eye me-2"></i>پیش‌نمایش قرارداد</button>
+            </div>
+        </form>
+        <div class="preview-box" id="previewBox">
+            <h3 class="text-center">قولنامه خودرو</h3>
+            <p><strong>شماره قولنامه:</strong> <span id="preview_id">123</span></p>
+            <p><strong>نام خریدار:</strong> <span id="preview_buyer"></span></p>
+            <p><strong>نام فروشنده:</strong> <span id="preview_seller"></span></p>
+            <p><strong>مدل ماشین:</strong> <span id="preview_car"></span></p>
+            <p><strong>قیمت فروش:</strong> <span id="preview_price"></span> تومان</p>
+            <p><strong>قیمت خرید:</strong> <span id="preview_purchase"></span> تومان</p>
+            <p><strong>کمیسیون:</strong> <span id="preview_commission"></span> تومان</p>
+            <p><strong>سود:</strong> <span id="preview_profit"></span> تومان</p>
+            <p class="text-muted">تاریخ: <span id="preview_date"></span></p>
+        </div>
+    </div>
+    <div class="loading-overlay" id="loadingOverlay">
+        <i class="fas fa-spinner fa-spin me-2"></i>در حال پردازش...
+    </div>
+    <script>
+        // غیرفعال کردن لودینگ اولیه
+        document.getElementById('loadingOverlay').style.display = 'none';
+
+        const form = document.getElementById('contractForm');
+        const inputs = ['buyer_name', 'seller_name', 'car_model', 'price', 'purchase_price', 'commission_percent'];
+        const previewBox = document.getElementById('previewBox');
+
+        // افکت صوتی
+        const playSound = () => {
+            const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-car-engine-start-1.mp3');
+            audio.play().catch(() => {});
+        };
+
+        // محاسبه زنده کمیسیون و سود
+        function calculate() {
+            const price = parseFloat(document.getElementById('price').value) || 0;
+            const purchasePrice = parseFloat(document.getElementById('purchase_price').value) || 0;
+            const commissionPercent = parseFloat(document.getElementById('commission_percent').value) || 2;
+            const commission = (price * commissionPercent / 100).toFixed(0);
+            const profit = (price - purchasePrice - commission).toFixed(0);
+            document.getElementById('commission_display').textContent = commission.toLocaleString('fa-IR');
+            document.getElementById('profit_display').textContent = profit.toLocaleString('fa-IR');
+            return { commission, profit };
+        }
+
+        // Validate کردن فرم
+        function validateForm() {
+            let isValid = true;
+            inputs.forEach(id => {
+                const input = document.getElementById(id);
+                const errorElement = document.getElementById(`${id}_error`);
+                if (!input.value || (['price', 'purchase_price'].includes(id) && input.value <= 0)) {
+                    input.classList.add('is-invalid');
+                    errorElement.style.display = 'block';
+                    errorElement.textContent = id.includes('price') ? 'قیمت باید معتبر باشد' : `${input.previousElementSibling.textContent} نمی‌تواند خالی باشد`;
+                    isValid = false;
+                } else {
+                    input.classList.remove('is-invalid');
+                    errorElement.style.display = 'none';
+                }
+            });
+            return isValid;
+        }
+
+        // ذخیره در localStorage و نمایش پیش‌نمایش
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (!validateForm()) return;
+
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            playSound();
+
+            setTimeout(() => {
+                const data = {
+                    id: Date.now(),
+                    buyer_name: document.getElementById('buyer_name').value,
+                    seller_name: document.getElementById('seller_name').value,
+                    car_model: document.getElementById('car_model').value,
+                    price: parseFloat(document.getElementById('price').value),
+                    purchase_price: parseFloat(document.getElementById('purchase_price').value),
+                    commission_percent: parseFloat(document.getElementById('commission_percent').value) || 2,
+                    commission: calculate().commission,
+                    profit: calculate().profit,
+                    date: new Date().toLocaleDateString('fa-IR')
+                };
+                const contracts = JSON.parse(localStorage.getItem('contracts') || '[]');
+                contracts.push(data);
+                localStorage.setItem('contracts', JSON.stringify(contracts));
+                alert('قولنامه ذخیره شد! برای اتصال به سرور، بک‌اند اضافه کنید.');
+                form.reset();
+                calculate();
+                previewBox.style.display = 'none';
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }, 1500);
+        });
+
+        // پیش‌نمایش قرارداد
+        function showPreview() {
+            if (!validateForm()) return;
+            const { commission, profit } = calculate();
+            document.getElementById('preview_id').textContent = Date.now();
+            document.getElementById('preview_buyer').textContent = document.getElementById('buyer_name').value;
+            document.getElementById('preview_seller').textContent = document.getElementById('seller_name').value;
+            document.getElementById('preview_car').textContent = document.getElementById('car_model').value;
+            document.getElementById('preview_price').textContent = parseFloat(document.getElementById('price').value).toLocaleString('fa-IR');
+            document.getElementById('preview_purchase').textContent = parseFloat(document.getElementById('purchase_price').value).toLocaleString('fa-IR');
+            document.getElementById('preview_commission').textContent = commission.toLocaleString('fa-IR');
+            document.getElementById('preview_profit').textContent = profit.toLocaleString('fa-IR');
+            document.getElementById('preview_date').textContent = new Date().toLocaleDateString('fa-IR');
+            previewBox.style.display = 'block';
+        }
+
+        // محاسبه زنده موقع تایپ
+        ['price', 'purchase_price', 'commission_percent'].forEach(id => {
+            document.getElementById(id).addEventListener('input', calculate);
+        });
+
+        // محاسبه اولیه
+        calculate();
+    </script>
+</body>
+</html>

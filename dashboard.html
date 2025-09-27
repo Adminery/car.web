@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ورود به پنل نمایشگاه ماشین</title>
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome برای آیکون‌ها -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            overflow: hidden;
+            font-family: 'Vazir', -apple-system, BlinkMacSystemFont, sans-serif;
+            position: relative;
+            background: url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7') no-repeat center/cover;
+        }
+        video#bgVideo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            filter: brightness(0.4) contrast(1.2);
+        }
+        .login-container {
+            max-width: 450px;
+            margin: 30px auto;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 123, 255, 0.5);
+            animation: neonGlow 2s infinite alternate;
+            position: relative;
+            z-index: 1;
+            border: 2px solid #00d4ff;
+        }
+        @keyframes neonGlow {
+            from { box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); }
+            to { box-shadow: 0 0 20px rgba(0, 123, 255, 1); }
+        }
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+        .input-group:hover {
+            transform: translateX(-5px);
+        }
+        .form-control {
+            border-radius: 12px;
+            padding: 12px 40px 12px 12px;
+            border: 2px solid #00d4ff;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .form-control:focus {
+            border-color: #00ffcc;
+            box-shadow: 0 0 12px rgba(0, 255, 204, 0.5);
+        }
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            animation: shake 0.3s;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .btn-custom {
+            background: linear-gradient(45deg, #007bff, #00d4ff);
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: bold;
+            width: 100%;
+            transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+        }
+        .btn-custom:hover {
+            background: linear-gradient(45deg, #0056b3, #00aaff);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(0, 123, 255, 0.7);
+        }
+        .btn-custom:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .input-icon {
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+            color: #00d4ff;
+        }
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #00d4ff;
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+        .form-toggle {
+            text-align: center;
+            margin-top: 15px;
+        }
+        .form-toggle a {
+            color: #00d4ff;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .form-toggle a:hover {
+            color: #00ffcc;
+        }
+        .form-section {
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+        .form-section.active {
+            display: block;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00d4ff;
+            font-size: 1.5rem;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body>
+    <video id="bgVideo" autoplay muted loop>
+        <source src="https://assets.mixkit.co/videos/preview/mixkit-car-driving-on-a-highway-at-night-4108-large.mp4" type="video/mp4">
+    </video>
+    <div class="login-container">
+        <!-- فرم لاگین -->
+        <div class="form-section active" id="loginSection">
+            <h2 class="text-center mb-4 text-white"><i class="fas fa-car me-2"></i>ورود به پنل نمایشگاه</h2>
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="loginUsername" class="text-white"><i class="fas fa-user me-2"></i>نام کاربری</label>
+                    <div class="position-relative">
+                        <input type="text" class="form-control" id="loginUsername" placeholder="نام کاربری" required>
+                        <i class="fas fa-user input-icon"></i>
+                    </div>
+                    <div class="error-message" id="loginUsernameError">نام کاربری نمی‌تواند خالی باشد</div>
+                </div>
+                <div class="input-group">
+                    <label for="loginPassword" class="text-white"><i class="fas fa-lock me-2"></i>رمز عبور</label>
+                    <div class="position-relative">
+                        <input type="password" class="form-control" id="loginPassword" placeholder="رمز عبور" required>
+                        <i class="fas fa-lock input-icon"></i>
+                        <i class="fas fa-eye toggle-password" id="loginTogglePassword"></i>
+                    </div>
+                    <div class="error-message" id="loginPasswordError">رمز عبور اشتباه است</div>
+                </div>
+                <button type="submit" class="btn btn-custom" id="loginBtn"><i class="fas fa-sign-in-alt me-2"></i>ورود</button>
+            </form>
+            <div class="form-toggle">
+                <p class="text-white">حساب ندارید؟ <a onclick="showSection('signupSection')">ثبت‌نام کنید</a></p>
+                <p class="text-white"><a onclick="showSection('forgotSection')">فراموشی رمز عبور؟</a></p>
+            </div>
+        </div>
+
+        <!-- فرم ثبت‌نام -->
+        <div class="form-section" id="signupSection">
+            <h2 class="text-center mb-4 text-white"><i class="fas fa-user-plus me-2"></i>ثبت‌نام</h2>
+            <form id="signupForm">
+                <div class="input-group">
+                    <label for="signupUsername" class="text-white"><i class="fas fa-user me-2"></i>نام کاربری</label>
+                    <div class="position-relative">
+                        <input type="text" class="form-control" id="signupUsername" placeholder="نام کاربری" required>
+                        <i class="fas fa-user input-icon"></i>
+                    </div>
+                    <div class="error-message" id="signupUsernameError">نام کاربری نمی‌تواند خالی باشد</div>
+                </div>
+                <div class="input-group">
+                    <label for="signupPassword" class="text-white"><i class="fas fa-lock me-2"></i>رمز عبور</label>
+                    <div class="position-relative">
+                        <input type="password" class="form-control" id="signupPassword" placeholder="رمز عبور" required>
+                        <i class="fas fa-lock input-icon"></i>
+                        <i class="fas fa-eye toggle-password" id="signupTogglePassword"></i>
+                    </div>
+                    <div class="error-message" id="signupPasswordError">رمز عبور باید حداقل 6 کاراکتر باشد</div>
+                </div>
+                <div class="input-group">
+                    <label for="confirmPassword" class="text-white"><i class="fas fa-lock me-2"></i>تأیید رمز عبور</label>
+                    <div class="position-relative">
+                        <input type="password" class="form-control" id="confirmPassword" placeholder="تأیید رمز عبور" required>
+                        <i class="fas fa-lock input-icon"></i>
+                    </div>
+                    <div class="error-message" id="confirmPasswordError">رمزهای عبور مطابقت ندارند</div>
+                </div>
+                <button type="submit" class="btn btn-custom" id="signupBtn"><i class="fas fa-user-plus me-2"></i>ثبت‌نام</button>
+            </form>
+            <div class="form-toggle">
+                <p class="text-white">حساب دارید؟ <a onclick="showSection('loginSection')">وارد شوید</a></p>
+            </div>
+        </div>
+
+        <!-- فرم بازیابی رمز عبور -->
+        <div class="form-section" id="forgotSection">
+            <h2 class="text-center mb-4 text-white"><i class="fas fa-key me-2"></i>بازیابی رمز عبور</h2>
+            <form id="forgotForm">
+                <div class="input-group">
+                    <label for="forgotUsername" class="text-white"><i class="fas fa-user me-2"></i>نام کاربری</label>
+                    <div class="position-relative">
+                        <input type="text" class="form-control" id="forgotUsername" placeholder="نام کاربری" required>
+                        <i class="fas fa-user input-icon"></i>
+                    </div>
+                    <div class="error-message" id="forgotUsernameError">نام کاربری یافت نشد</div>
+                </div>
+                <div class="input-group">
+                    <label for="newPassword" class="text-white"><i class="fas fa-lock me-2"></i>رمز عبور جدید</label>
+                    <div class="position-relative">
+                        <input type="password" class="form-control" id="newPassword" placeholder="رمز عبور جدید" required>
+                        <i class="fas fa-lock input-icon"></i>
+                        <i class="fas fa-eye toggle-password" id="forgotTogglePassword"></i>
+                    </div>
+                    <div class="error-message" id="newPasswordError">رمز عبور باید حداقل 6 کاراکتر باشد</div>
+                </div>
+                <button type="submit" class="btn btn-custom" id="forgotBtn"><i class="fas fa-key me-2"></i>بازیابی رمز</button>
+            </form>
+            <div class="form-toggle">
+                <p class="text-white">حساب دارید؟ <a onclick="showSection('loginSection')">وارد شوید</a></p>
+            </div>
+        </div>
+    </div>
+    <div class="loading-overlay" id="loadingOverlay">
+        <i class="fas fa-spinner fa-spin me-2"></i>در حال پردازش...
+    </div>
+    <script>
+        // غیرفعال کردن لودینگ اولیه
+        document.getElementById('loadingOverlay').style.display = 'none';
+
+        // شبیه‌سازی دیتابیس با localStorage
+        if (!localStorage.getItem('users')) {
+            const initialUsers = [
+                { username: 'admin', password: btoa('admin123'), role: 'admin' },
+                { username: 'user1', password: btoa('user123'), role: 'user' }
+            ];
+            localStorage.setItem('users', JSON.stringify(initialUsers));
+        }
+
+        // افکت صوتی
+        const playSound = () => {
+            const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-car-engine-start-1.mp3');
+            audio.play().catch(() => {});
+        };
+
+        // سوییچ بین فرم‌ها
+        function showSection(sectionId) {
+            document.querySelectorAll('.form-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        // نمایش/مخفی کردن رمز
+        ['loginTogglePassword', 'signupTogglePassword', 'forgotTogglePassword'].forEach(id => {
+            document.getElementById(id).addEventListener('click', () => {
+                const input = document.getElementById(id.replace('TogglePassword', 'Password') || 'forgotUsername');
+                const type = input.type === 'password' ? 'text' : 'password';
+                input.type = type;
+                document.getElementById(id).classList.toggle('fa-eye');
+                document.getElementById(id).classList.toggle('fa-eye-slash');
+            });
+        });
+
+        // Validation عمومی
+        function validateInput(input, errorElement, message) {
+            if (!input.value) {
+                input.classList.add('is-invalid');
+                errorElement.style.display = 'block';
+                errorElement.textContent = message;
+                document.body.style.animation = 'shake 0.3s';
+                setTimeout(() => document.body.style.animation = '', 300);
+                return false;
+            }
+            input.classList.remove('is-invalid');
+            errorElement.style.display = 'none';
+            return true;
+        }
+
+        // فرم لاگین
+        const loginForm = document.getElementById('loginForm');
+        const loginUsername = document.getElementById('loginUsername');
+        const loginPassword = document.getElementById('loginPassword');
+        const loginBtn = document.getElementById('loginBtn');
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const isUsernameValid = validateInput(loginUsername, document.getElementById('loginUsernameError'), 'نام کاربری نمی‌تواند خالی باشد');
+            const isPasswordValid = validateInput(loginPassword, document.getElementById('loginPasswordError'), 'رمز عبور نمی‌تواند خالی باشد');
+            if (!isUsernameValid || !isPasswordValid) return;
+
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>در حال ورود...';
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            playSound();
+
+            setTimeout(() => {
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const user = users.find(u => u.username === loginUsername.value && u.password === btoa(loginPassword.value));
+                if (user) {
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    alert(`ورود موفق! خوش آمدید، ${user.role === 'admin' ? 'ادمین' : 'کاربر'}`);
+                    window.location.href = 'index.html';
+                } else {
+                    loginPassword.classList.add('is-invalid');
+                    document.getElementById('loginPasswordError').style.display = 'block';
+                    document.getElementById('loginPasswordError').textContent = 'نام کاربری یا رمز عبور اشتباه است';
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>ورود';
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                }
+            }, 1500);
+        });
+        loginUsername.addEventListener('input', () => validateInput(loginUsername, document.getElementById('loginUsernameError'), 'نام کاربری نمی‌تواند خالی باشد'));
+        loginPassword.addEventListener('input', () => validateInput(loginPassword, document.getElementById('loginPasswordError'), 'رمز عبور نمی‌تواند خالی باشد'));
+
+        // فرم ثبت‌نام
+        const signupForm = document.getElementById('signupForm');
+        const signupUsername = document.getElementById('signupUsername');
+        const signupPassword = document.getElementById('signupPassword');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const signupBtn = document.getElementById('signupBtn');
+        signupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const isUsernameValid = validateInput(signupUsername, document.getElementById('signupUsernameError'), 'نام کاربری نمی‌تواند خالی باشد');
+            const isPasswordValid = signupPassword.value.length >= 6 ? validateInput(signupPassword, document.getElementById('signupPasswordError'), 'رمز عبور باید حداقل 6 کاراکتر باشد') : false;
+            const isConfirmValid = signupPassword.value === confirmPassword.value ? validateInput(confirmPassword, document.getElementById('confirmPasswordError'), 'رمزهای عبور مطابقت ندارند') : false;
+
+            if (!isUsernameValid || !isPasswordValid || !isConfirmValid) {
+                if (signupPassword.value.length < 6) {
+                    signupPassword.classList.add('is-invalid');
+                    document.getElementById('signupPasswordError').style.display = 'block';
+                }
+                if (signupPassword.value !== confirmPassword.value) {
+                    confirmPassword.classList.add('is-invalid');
+                    document.getElementById('confirmPasswordError').style.display = 'block';
+                }
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            if (users.some(u => u.username === signupUsername.value)) {
+                signupUsername.classList.add('is-invalid');
+                document.getElementById('signupUsernameError').style.display = 'block';
+                document.getElementById('signupUsernameError').textContent = 'نام کاربری قبلاً استفاده شده';
+                return;
+            }
+
+            signupBtn.disabled = true;
+            signupBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>در حال ثبت...';
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            playSound();
+
+            setTimeout(() => {
+                users.push({
+                    username: signupUsername.value,
+                    password: btoa(signupPassword.value),
+                    role: 'user'
+                });
+                localStorage.setItem('users', JSON.stringify(users));
+                alert('ثبت‌نام موفق! حالا می‌توانید وارد شوید.');
+                showSection('loginSection');
+                signupForm.reset();
+                signupBtn.disabled = false;
+                signupBtn.innerHTML = '<i class="fas fa-user-plus me-2"></i>ثبت‌نام';
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }, 1500);
+        });
+
+        // فرم بازیابی رمز
+        const forgotForm = document.getElementById('forgotForm');
+        const forgotUsername = document.getElementById('forgotUsername');
+        const newPassword = document.getElementById('newPassword');
+        const forgotBtn = document.getElementById('forgotBtn');
+        forgotForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const isUsernameValid = validateInput(forgotUsername, document.getElementById('forgotUsernameError'), 'نام کاربری نمی‌تواند خالی باشد');
+            const isPasswordValid = newPassword.value.length >= 6 ? validateInput(newPassword, document.getElementById('newPasswordError'), 'رمز عبور باید حداقل 6 کاراکتر باشد') : false;
+
+            if (!isUsernameValid || !isPasswordValid) {
+                if (newPassword.value.length < 6) {
+                    newPassword.classList.add('is-invalid');
+                    document.getElementById('newPasswordError').style.display = 'block';
+                }
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const userIndex = users.findIndex(u => u.username === forgotUsername.value);
+            if (userIndex === -1) {
+                forgotUsername.classList.add('is-invalid');
+                document.getElementById('forgotUsernameError').style.display = 'block';
+                document.getElementById('forgotUsernameError').textContent = 'نام کاربری یافت نشد';
+                return;
+            }
+
+            forgotBtn.disabled = true;
+            forgotBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>در حال بازیابی...';
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            playSound();
+
+            setTimeout(() => {
+                users[userIndex].password = btoa(newPassword.value);
+                localStorage.setItem('users', JSON.stringify(users));
+                alert('رمز عبور با موفقیت تغییر کرد! حالا می‌توانید وارد شوید.');
+                showSection('loginSection');
+                forgotForm.reset();
+                forgotBtn.disabled = false;
+                forgotBtn.innerHTML = '<i class="fas fa-key me-2"></i>بازیابی رمز';
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
